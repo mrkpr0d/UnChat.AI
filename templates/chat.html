@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Chatbot</title>
+<!-- Añade Materialize CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<style>
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #121212;
+  color: white;
+}
+
+.container {
+  max-width: 800px;
+}
+
+#chatbox {
+  background-color: #1e1e1e;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  height: 400px;
+  overflow-y: scroll;
+}
+
+.userText span {
+  color: #90caf9;
+  display: inline-block;
+  background-color: #424242;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+.botText span {
+  color: #ffab40;
+  display: inline-block;
+  background-color: #424242;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+#userInput {
+  color:white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+#textInput {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 class="center-align">Chatbot GGML</h1>
+  <div id="chatbox" class="card-panel">
+    <p class="botText"><span>¡Hola! ¿Cómo puedo ayudarte hoy?</span></p>
+  </div>
+  <div id="userInput">
+    <input id="textInput" type="text" name="msg" placeholder="Escribe aquí" class="input-field">
+    <button id="buttonInput" class="btn waves-effect waves-light">Enviar</button>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+function scrollToBottom() {
+  var chatbox = document.getElementById("chatbox");
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+function getBotResponse() {
+    var rawText = document.getElementById("textInput").value;
+    if (!rawText) {
+        M.toast({html: 'Por favor, introduce un mensaje.'});
+        return;
+    }
+    var userHtml = '<p class="userText"><span>' + rawText + '</span></p>';
+    document.getElementById("textInput").value = "";
+    document.getElementById("chatbox").innerHTML += userHtml;
+    scrollToBottom();
+    fetch("/get?msg=" + encodeURIComponent(rawText))
+    .then(response => response.text())
+    .then(data => {
+        var botHtml = '<p class="botText"><span>' + data + '</span></p>';
+        document.getElementById("chatbox").innerHTML += botHtml;
+        scrollToBottom();
+    });
+}
+
+document.getElementById("textInput").addEventListener("keypress", function(e) {
+    if(e.which == 13) {
+        getBotResponse();
+    }
+});
+
+document.getElementById("buttonInput").addEventListener("click", function() {
+    getBotResponse();
+    scrollToBottom();
+});
+
+// Scroll hasta el final cuando se cargue la página
+window.onload = function() {
+  scrollToBottom();
+};
+</script>
+</body>
+</html>
